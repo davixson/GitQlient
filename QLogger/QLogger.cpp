@@ -168,11 +168,14 @@ QLoggerManager::~QLoggerManager()
    for (const auto &dest : mModuleDest.toStdMap())
       writeAndDequeueMessages(dest.first);
 
-   for (auto dest : qAsConst(mModuleDest))
+   for (auto& dest : qAsConst(mModuleDest))
    {
       dest->closeDestination();
-      dest->deleteLater();
+      dest->wait();
    }
+
+   for (auto& dest : qAsConst(mModuleDest))
+      delete dest;
 
    mModuleDest.clear();
 }

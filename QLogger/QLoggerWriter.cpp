@@ -108,14 +108,17 @@ void QLoggerWriter::run()
 
       copy.clear();
 
-      mutex.lock();
-      mQueueNotEmpty.wait(&mutex);
-      mutex.unlock();
+      if (!mQuit)
+      {
+         QMutexLocker locker(&mutex);
+         mQueueNotEmpty.wait(&mutex);
+      }
    }
 }
 
 void QLoggerWriter::closeDestination()
 {
+   QMutexLocker locker(&mutex);
    mQuit = true;
    mQueueNotEmpty.wakeAll();
 }
